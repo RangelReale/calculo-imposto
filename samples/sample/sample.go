@@ -51,20 +51,31 @@ func t_simples1() error {
 
 	for _, cm := range ret.Items {
 		fmt.Printf("Mes: %d\n", cm.Periodo)
-		fmt.Printf("Faturamento: %f\n", cm.ValorOriginal)
-		fmt.Printf("Imposto: %f\n", cm.ValorImposto)
-		fmt.Printf("Fator R: %f\n", cm.Extra[calculo_pj.CalculoResultadoExtra_Simples_FatorR].(float64))
+		fmt.Printf("Faturamento: %.2f\n", cm.ValorOriginal)
+		fmt.Printf("Imposto: %.2f (%.2f%%)\n", cm.ValorImposto, cm.AliquotaImposto())
+		fmt.Printf("Fator R: %.2f\n", cm.Extra[calculo_pj.CalculoResultadoExtra_Simples_FatorR].(float64))
 		for _, ti := range calculo_imposto.TipoImpostoLista {
 			if imp, ok := cm.Impostos[ti]; ok {
 				if imp.ValorImposto > 0 {
-					fmt.Printf("ValorImposto %s: %f (%.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
+					fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
 				}
 			}
 		}
 		fmt.Printf("%s\n", strings.Repeat("-", 10))
 	}
 
-	t_explain(explain)
+	fmt.Printf("\n%s TOTAL %s\n", strings.Repeat("-", 5), strings.Repeat("-", 5))
+	rettotal := ret.Total()
+	fmt.Printf("Imposto: %.2f (%.2f%%)\n", rettotal.ValorImposto, rettotal.AliquotaImposto())
+	for _, ti := range calculo_imposto.TipoImpostoLista {
+		if imp, ok := rettotal.Impostos[ti]; ok {
+			if imp.ValorImposto > 0 {
+				fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
+			}
+		}
+	}
+
+	//t_explain(explain)
 
 	return nil
 }
@@ -91,22 +102,33 @@ func t_lucropresumido1() error {
 
 	for _, cm := range ret.Items {
 		fmt.Printf("Mes: %d\n", cm.Periodo)
-		fmt.Printf("Faturamento: %f\n", cm.ValorOriginal)
-		fmt.Printf("Imposto: %f\n", cm.ValorImposto)
+		fmt.Printf("Faturamento: %.2f\n", cm.ValorOriginal)
+		fmt.Printf("Imposto: %.2f (%.2f%%)\n", cm.ValorImposto, cm.AliquotaImposto())
 		if fp, ok := cm.Extra[calculo_imposto.CalculoResultadoExtra_ValorFolhaDePagamento]; ok {
-			fmt.Printf("Folha de pagamento: %f\n", fp.(float64))
+			fmt.Printf("Folha de pagamento: %.2f\n", fp.(float64))
 		}
 		for _, ti := range calculo_imposto.TipoImpostoLista {
 			if imp, ok := cm.Impostos[ti]; ok {
 				if imp.ValorImposto > 0 {
-					fmt.Printf("ValorImposto %s: %f\n", ti.String(), imp.ValorImposto)
+					fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
 				}
 			}
 		}
 		fmt.Printf("%s\n", strings.Repeat("-", 10))
 	}
 
-	t_explain(explain)
+	fmt.Printf("\n%s TOTAL %s\n", strings.Repeat("-", 5), strings.Repeat("-", 5))
+	rettotal := ret.Total()
+	fmt.Printf("Imposto: %.2f (%.2f%%)\n", rettotal.ValorImposto, rettotal.AliquotaImposto())
+	for _, ti := range calculo_imposto.TipoImpostoLista {
+		if imp, ok := rettotal.Impostos[ti]; ok {
+			if imp.ValorImposto > 0 {
+				fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
+			}
+		}
+	}
+
+	//t_explain(explain)
 
 	return nil
 }
@@ -129,16 +151,27 @@ func t_lucroreal1() error {
 
 	for _, cm := range ret.Items {
 		fmt.Printf("Mes: %d\n", cm.Periodo)
-		fmt.Printf("Faturamento: %f\n", cm.ValorOriginal)
-		fmt.Printf("Imposto: %f\n", cm.ValorImposto)
+		fmt.Printf("Faturamento: %.2f\n", cm.ValorOriginal)
+		fmt.Printf("Imposto: %.2f (%.2f%%)\n", cm.ValorImposto, cm.AliquotaImposto())
 		for _, ti := range calculo_imposto.TipoImpostoLista {
 			if imp, ok := cm.Impostos[ti]; ok {
 				if imp.ValorImposto > 0 {
-					fmt.Printf("ValorImposto %s: %f\n", ti.String(), imp.ValorImposto)
+					fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
 				}
 			}
 		}
 		fmt.Printf("%s\n", strings.Repeat("-", 10))
+	}
+
+	fmt.Printf("\n%s TOTAL %s\n", strings.Repeat("-", 5), strings.Repeat("-", 5))
+	rettotal := ret.Total()
+	fmt.Printf("Imposto: %.2f (%.2f%%)\n", rettotal.ValorImposto, rettotal.AliquotaImposto())
+	for _, ti := range calculo_imposto.TipoImpostoLista {
+		if imp, ok := rettotal.Impostos[ti]; ok {
+			if imp.ValorImposto > 0 {
+				fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
+			}
+		}
 	}
 
 	t_explain(explain)
@@ -149,7 +182,7 @@ func t_lucroreal1() error {
 func t_irpf1() error {
 	calc := calculo_pf.NewCalculoPF(calculo_pf.IRPF2021_Mensal, calculo_pf.WithCPF_TabelaINSS(calculo_pf.NewTabelaINSS_PJ_2021()))
 
-	prolabore := calculo_pf.NewProlabore_Static(12, calculo_pf.WithPS_ValorMensal(1100.0))
+	prolabore := calculo_pf.NewProlabore_Static(12, calculo_pf.WithPS_ValorMensal(4000.00))
 
 	ret, err := calc.Calculo(prolabore)
 	if err != nil {
@@ -158,16 +191,27 @@ func t_irpf1() error {
 
 	for _, cm := range ret.Items {
 		fmt.Printf("Mes: %d\n", cm.Periodo)
-		fmt.Printf("Prolabore: %f\n", cm.ValorOriginal)
-		fmt.Printf("Imposto: %f\n", cm.ValorImposto)
+		fmt.Printf("Prolabore: %.2f\n", cm.ValorOriginal)
+		fmt.Printf("Imposto: %.2f (%.2f%%)\n", cm.ValorImposto, cm.AliquotaImposto())
 		for _, ti := range calculo_imposto.TipoImpostoLista {
 			if imp, ok := cm.Impostos[ti]; ok {
 				if imp.ValorImposto > 0 {
-					fmt.Printf("ValorImposto %s: %f\n", ti.String(), imp.ValorImposto)
+					fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
 				}
 			}
 		}
 		fmt.Printf("%s\n", strings.Repeat("-", 10))
+	}
+
+	fmt.Printf("\n%s TOTAL %s\n", strings.Repeat("-", 5), strings.Repeat("-", 5))
+	rettotal := ret.Total()
+	fmt.Printf("Imposto: %.2f (%.2f%%)\n", rettotal.ValorImposto, rettotal.AliquotaImposto())
+	for _, ti := range calculo_imposto.TipoImpostoLista {
+		if imp, ok := rettotal.Impostos[ti]; ok {
+			if imp.ValorImposto > 0 {
+				fmt.Printf("ValorImposto %s: %.2f (aliq: %.2f%%)\n", ti.String(), imp.ValorImposto, imp.Aliquota)
+			}
+		}
 	}
 
 	return nil
