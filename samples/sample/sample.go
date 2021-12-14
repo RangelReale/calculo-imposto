@@ -33,14 +33,19 @@ func t_explain(explain calculo_imposto.ExplainIntf) {
 func t_simples1() error {
 	explain := calculo_imposto.NewExplain()
 
-	//fat := calculo_pj.NewFaturamento_Static(12, calculo_pj.WithFS_ValorAnual(540_000),
-	//	calculo_pj.WithFS_FolhadePagamentoAnual(540_000*0.28))
-	fat := calculo_pj.NewFaturamento_Static(12, calculo_pj.WithFS_ValorMensal(20_000.0),
+	fat12meses := calculo_pj.NewFaturamento_Static(12, calculo_pj.WithFS_ValorAnual(240_000.00),
+		calculo_pj.WithFS_FolhadePagamentoMensal(1_100.00))
+
+	//fat := calculo_pj.NewFaturamento_Static(1, calculo_pj.WithFS_ValorMensal(20_000.00),
+	//	calculo_pj.WithFS_FolhadePagamentoMensal(1_100.00))
+	fat := calculo_pj.NewFaturamento_Static(1, calculo_pj.WithFS_ValorMensal(20_000.0),
 		calculo_pj.WithFS_FolhadePagamentoMensal(20_000.0*0.28))
 
-	//calc := calculo_pj.NewCalculoSimples(fat, calculo_pj.Simples2018AnexoIII, nil, calculo_pj.SimplesImpostoAplicado_Exportacao{})
-	//calc := calculo_pj.NewCalculoSimples(fat, calculo_pj.Simples2018AnexoV, nil, calculo_pj.SimplesImpostoAplicado_Exportacao{})
-	calc := calculo_pj.NewCalculoSimples(fat, calculo_pj.Simples2018AnexoV, calculo_pj.WithCS_AnexoFatorR(calculo_pj.Simples2018AnexoIII),
+	//calc := calculo_pj.NewCalculoSimples(fat12meses, calculo_pj.Simples2018AnexoIII,
+	//	//calculo_pj.WithCS_ImpostoAplicado(calculo_imposto.ImpostoAplicado_Exportacao{}),
+	//	calculo_pj.WithCS_Explain(explain))
+	calc := calculo_pj.NewCalculoSimples(fat12meses, calculo_pj.Simples2018AnexoV,
+		calculo_pj.WithCS_AnexoFatorR(calculo_pj.Simples2018AnexoIII),
 		//calculo_pj.WithCS_ImpostoAplicado(calculo_imposto.ImpostoAplicado_Exportacao{}),
 		calculo_pj.WithCS_Explain(explain))
 
@@ -75,7 +80,7 @@ func t_simples1() error {
 		}
 	}
 
-	//t_explain(explain)
+	t_explain(explain)
 
 	return nil
 }
@@ -174,7 +179,7 @@ func t_lucroreal1() error {
 		}
 	}
 
-	t_explain(explain)
+	//t_explain(explain)
 
 	return nil
 }
